@@ -19,9 +19,8 @@ db = SQLAlchemy(app)
 
 # Movie Model (this will interact with the 'movies' table created in the database)
 class Movie(db.Model):
-    __tablename__ = 'movies'  # This matches the table name used in setup_database.py
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(255), nullable=False)
+    __tablename__ = 'movies'  
+    title = db.Column(db.String(255), primary_key=True)  # Use title as the primary key
     year = db.Column(db.Integer, nullable=False)
     rating = db.Column(db.Float)
     genre = db.Column(db.String(50))
@@ -48,12 +47,12 @@ def get_movies():
     } for m in movies])
 
 # Route to get a single movie by ID
-@app.route('/movies/<int:id>', methods=['GET'])
-def get_movie(id):
-    movie = Movie.query.get(id)
+@app.route('/movies/<title>', methods=['GET'])
+def get_movie(title):
+    movie = Movie.query.get(title)
     if not movie:
         return jsonify({"error": "Movie not found"}), 404
-    return jsonify({"id": movie.id, "title": movie.title, "year": movie.year, "rating": movie.rating, "genre": movie.genre})
+    return jsonify({"title": movie.title, "year": movie.year, "rating": movie.rating, "genre": movie.genre})
 
 # Route to add a new movie
 @app.route('/movies', methods=['POST'])
@@ -62,12 +61,13 @@ def add_movie():
     new_movie = Movie(title=data['title'], year=data['year'], rating=data.get('rating'), genre=data.get('genre'))
     db.session.add(new_movie)
     db.session.commit()
-    return jsonify({"message": "Movie added!", "movie": {"id": new_movie.id, "title": new_movie.title}}), 201
+
+    return jsonify({"message": "Movie added!", "movie": {"title": new_movie.title, "year": new_movie.year, "rating": new_movie.rating, "genre": new_movie.genre}}), 201
 
 # Route to update an existing movie
-@app.route('/movies/<int:id>', methods=['PUT'])
-def update_movie(id):
-    movie = Movie.query.get(id)
+@app.route('/movies/<title>', methods=['PUT'])
+def update_movie(title):
+    movie = Movie.query.get(title)
     if not movie:
         return jsonify({"error": "Movie not found"}), 404
 
@@ -78,18 +78,21 @@ def update_movie(id):
     movie.genre = data.get('genre', movie.genre)
 
     db.session.commit()
-    return jsonify({"message": "Movie updated!", "movie": {"id": movie.id, "title": movie.title}})
+    return jsonify({"message": "Movie Updatet!", "movie": {"title": movie.title, "year": movie.year, "rating": movie.rating, "genre": movie.genre}}), 201
 
 # Route to delete a movie
-@app.route('/movies/<int:id>', methods=['DELETE'])
-def delete_movie(id):
-    movie = Movie.query.get(id)
+@app.route('/movies/<title>', methods=['DELETE'])
+def delete_movie(title):
+    # Fetch the movie by its title (since title is the primary key)
+    movie = Movie.query.get(title)
+    
     if not movie:
         return jsonify({"error": "Movie not found"}), 404
 
     db.session.delete(movie)
     db.session.commit()
-    return jsonify({"message": "Movie deleted!"})
+    
+    return jsonify({"message": "Movie deleted!"}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
