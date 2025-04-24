@@ -3,9 +3,9 @@ from sqlalchemy import Column, Integer, String, Float, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
-from redis_client import redis_client  # Redis client
 from fastapi.encoders import jsonable_encoder
 import json
+import time
 
 # Database Configuration
 POSTGRES_USER = "postgres"
@@ -47,32 +47,39 @@ def get_db():
     finally:
         db.close()
 
+# --- Simple in-memory cache ---
+cache_movies = {}
+cache_single_movie = {}
+CACHE_TTL = 3600  # 1 hour
+
+def is_cache_valid(cache_item):
+    return cache_item and (time.time() - cache_item["timestamp"] < CACHE_TTL)
+
 @app.get("/")
 def index():
     return {"message": "Welcome to the FastAPI backend"}
 
 @app.get("/movies")
-async def get_movies(db: Session = Depends(get_db)):
-    cached_movies = await redis_client.get("all_movies")
-
-    if cached_movies:
-        movies = json.loads(cached_movies)
-        return {"source": "redis", "movies": movies}
+def get_movies(db: Session = Depends(get_db)):
+    if is_cache_valid(cache_movies.get("all_movies")):
+        return {"source": "memory", "movies": cache_movies["all_movies"]["data"]}
 
     movies = db.query(Movie).all()
     movies_data = jsonable_encoder(movies)
 
-    await redis_client.set("all_movies", json.dumps(movies_data))
+    # Cache the result
+    cache_movies["all_movies"] = {
+        "timestamp": time.time(),
+        "data": movies_data
+    }
+
     return {"source": "database", "movies": movies_data}
 
 @app.get("/movies/{title}")
-async def get_movie(title: str, db: Session = Depends(get_db)):
-    # Try to get from Redis cache
-    cached = await redis_client.hgetall(f"movie:{title}")
-    if cached:
-        return {"source": "redis", "movie": cached}
-    
-    # Fallback to DB
+def get_movie(title: str, db: Session = Depends(get_db)):
+    if is_cache_valid(cache_single_movie.get(title)):
+        return {"source": "memory", "movie": cache_single_movie[title]["data"]}
+
     movie = db.query(Movie).filter(Movie.title == title).first()
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
@@ -84,9 +91,10 @@ async def get_movie(title: str, db: Session = Depends(get_db)):
         "genre": movie.genre
     }
 
-    # Cache it in Redis
-    await redis_client.hset(f"movie:{title}", mapping=movie_data)
-    await redis_client.expire(f"movie:{title}", 3600)  # Optional: 1 hour TTL
+    cache_single_movie[title] = {
+        "timestamp": time.time(),
+        "data": movie_data
+    }
 
     return {"source": "database", "movie": movie_data}
 
@@ -96,6 +104,11 @@ def add_movie(movie: MovieSchema, db: Session = Depends(get_db)):
     db.add(new_movie)
     db.commit()
     db.refresh(new_movie)
+
+    # Invalidate caches
+    cache_movies.pop("all_movies", None)
+    cache_single_movie.pop(new_movie.title, None)
+
     return {"message": "Movie added!", "movie": new_movie}
 
 @app.put("/movies/{title}")
@@ -109,9 +122,10 @@ def update_movie(title: str, updated_movie: MovieSchema, db: Session = Depends(g
 
     db.commit()
 
-    # Update Redis cache
-    redis_client.delete(f"movie:{title}")
-    
+    # Invalidate caches
+    cache_movies.pop("all_movies", None)
+    cache_single_movie.pop(title, None)
+
     return {"message": "Movie updated!", "movie": movie}
 
 @app.delete("/movies/{title}")
@@ -123,9 +137,10 @@ def delete_movie(title: str, db: Session = Depends(get_db)):
     db.delete(movie)
     db.commit()
 
-    # Remove from Redis
-    redis_client.delete(f"movie:{title}")
-    
+    # Invalidate caches
+    cache_movies.pop("all_movies", None)
+    cache_single_movie.pop(title, None)
+
     return {"message": "Movie deleted!"}
 
 # Create tables
