@@ -1,98 +1,132 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy import Column, Integer, String, Float, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
+from pydantic import BaseModel
+from redis_client import redis_client  # Redis client
+from fastapi.encoders import jsonable_encoder
+import json
 
-app = Flask(__name__)
-
-# Database configuration (this matches your setup in setup_database.py)
+# Database Configuration
 POSTGRES_USER = "postgres"
 POSTGRES_PASSWORD = "1234"
 POSTGRES_DB = "TestMovie"
 POSTGRES_HOST = "localhost"
 POSTGRES_PORT = "5432"
 
-# SQLAlchemy database URI (matches the one in setup_database.py)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # To avoid warnings
+DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
-# Initialize the SQLAlchemy instance
-db = SQLAlchemy(app)
+# SQLAlchemy setup
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-# Movie Model (this will interact with the 'movies' table created in the database)
-class Movie(db.Model):
-    __tablename__ = 'movies'  
-    title = db.Column(db.String(255), primary_key=True)  # Use title as the primary key
-    year = db.Column(db.Integer, nullable=False)
-    rating = db.Column(db.Float)
-    genre = db.Column(db.String(50))
+# FastAPI instance
+app = FastAPI()
 
-    def __repr__(self):
-        return f"<Movie {self.title}>"
+# SQLAlchemy Movie Model
+class Movie(Base):
+    __tablename__ = "movies"
+    title = Column(String(255), primary_key=True)
+    year = Column(Integer, nullable=False)
+    rating = Column(Float)
+    genre = Column(String(50))
 
+# Pydantic Schema
+class MovieSchema(BaseModel):
+    title: str
+    year: int
+    rating: float | None = None
+    genre: str | None = None
 
-@app.route('/', methods=['GET'])
+# DB session dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.get("/")
 def index():
-    return "Welcome to the backend"
+    return {"message": "Welcome to the FastAPI backend"}
 
+@app.get("/movies")
+async def get_movies(db: Session = Depends(get_db)):
+    cached_movies = await redis_client.get("all_movies")
 
-# Route to get all movies
-@app.route('/movies', methods=['GET'])
-def get_movies():
-    movies = Movie.query.all()
-    return jsonify([{
-        
-        "title": m.title,
-        "year": m.year,
-        "rating": m.rating,
-        "genre": m.genre
-    } for m in movies])
+    if cached_movies:
+        movies = json.loads(cached_movies)
+        return {"source": "redis", "movies": movies}
 
-# Route to get a single movie by ID
-@app.route('/movies/<title>', methods=['GET'])
-def get_movie(title):
-    movie = Movie.query.get(title)
-    if not movie:
-        return jsonify({"error": "Movie not found"}), 404
-    return jsonify({"title": movie.title, "year": movie.year, "rating": movie.rating, "genre": movie.genre})
+    movies = db.query(Movie).all()
+    movies_data = jsonable_encoder(movies)
 
-# Route to add a new movie
-@app.route('/movies', methods=['POST'])
-def add_movie():
-    data = request.json
-    new_movie = Movie(title=data['title'], year=data['year'], rating=data.get('rating'), genre=data.get('genre'))
-    db.session.add(new_movie)
-    db.session.commit()
+    await redis_client.set("all_movies", json.dumps(movies_data))
+    return {"source": "database", "movies": movies_data}
 
-    return jsonify({"message": "Movie added!", "movie": {"title": new_movie.title, "year": new_movie.year, "rating": new_movie.rating, "genre": new_movie.genre}}), 201
-
-# Route to update an existing movie
-@app.route('/movies/<title>', methods=['PUT'])
-def update_movie(title):
-    movie = Movie.query.get(title)
-    if not movie:
-        return jsonify({"error": "Movie not found"}), 404
-
-    data = request.json
-    movie.title = data.get('title', movie.title)
-    movie.year = data.get('year', movie.year)
-    movie.rating = data.get('rating', movie.rating)
-    movie.genre = data.get('genre', movie.genre)
-
-    db.session.commit()
-    return jsonify({"message": "Movie Updatet!", "movie": {"title": movie.title, "year": movie.year, "rating": movie.rating, "genre": movie.genre}}), 201
-
-# Route to delete a movie
-@app.route('/movies/<title>', methods=['DELETE'])
-def delete_movie(title):
-    # Fetch the movie by its title (since title is the primary key)
-    movie = Movie.query.get(title)
+@app.get("/movies/{title}")
+async def get_movie(title: str, db: Session = Depends(get_db)):
+    # Try to get from Redis cache
+    cached = await redis_client.hgetall(f"movie:{title}")
+    if cached:
+        return {"source": "redis", "movie": cached}
     
+    # Fallback to DB
+    movie = db.query(Movie).filter(Movie.title == title).first()
     if not movie:
-        return jsonify({"error": "Movie not found"}), 404
+        raise HTTPException(status_code=404, detail="Movie not found")
 
-    db.session.delete(movie)
-    db.session.commit()
+    movie_data = {
+        "title": movie.title,
+        "year": movie.year,
+        "rating": movie.rating,
+        "genre": movie.genre
+    }
+
+    # Cache it in Redis
+    await redis_client.hset(f"movie:{title}", mapping=movie_data)
+    await redis_client.expire(f"movie:{title}", 3600)  # Optional: 1 hour TTL
+
+    return {"source": "database", "movie": movie_data}
+
+@app.post("/movies", status_code=201)
+def add_movie(movie: MovieSchema, db: Session = Depends(get_db)):
+    new_movie = Movie(**movie.model_dump())
+    db.add(new_movie)
+    db.commit()
+    db.refresh(new_movie)
+    return {"message": "Movie added!", "movie": new_movie}
+
+@app.put("/movies/{title}")
+def update_movie(title: str, updated_movie: MovieSchema, db: Session = Depends(get_db)):
+    movie = db.query(Movie).filter(Movie.title == title).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
     
-    return jsonify({"message": "Movie deleted!"}), 200
+    for key, value in updated_movie.model_dump(exclude_unset=True).items():
+        setattr(movie, key, value)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    db.commit()
+
+    # Update Redis cache
+    redis_client.delete(f"movie:{title}")
+    
+    return {"message": "Movie updated!", "movie": movie}
+
+@app.delete("/movies/{title}")
+def delete_movie(title: str, db: Session = Depends(get_db)):
+    movie = db.query(Movie).filter(Movie.title == title).first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+
+    db.delete(movie)
+    db.commit()
+
+    # Remove from Redis
+    redis_client.delete(f"movie:{title}")
+    
+    return {"message": "Movie deleted!"}
+
+# Create tables
+Base.metadata.create_all(engine)
