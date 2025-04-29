@@ -4,8 +4,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
+from cachetools import TTLCache
+from typing import Dict, Any
 import json
 import time
+import numpy as np
+from PIL import Image, ImageFilter
+import io
+from operator import itemgetter
 
 # Database Configuration
 POSTGRES_USER = "postgres"
@@ -13,7 +19,6 @@ POSTGRES_PASSWORD = "1234"
 POSTGRES_DB = "TestMovie"
 POSTGRES_HOST = "localhost"
 POSTGRES_PORT = "5432"
-
 DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
 # SQLAlchemy setup
@@ -23,6 +28,10 @@ Base = declarative_base()
 
 # FastAPI instance
 app = FastAPI()
+
+# In-memory TTL cache (max 100 items, 60 seconds TTL)
+movie_cache = TTLCache(maxsize=100, ttl=10)
+derived_cache = TTLCache(maxsize=10, ttl=10)
 
 # SQLAlchemy Movie Model
 class Movie(Base):
@@ -47,38 +56,81 @@ def get_db():
     finally:
         db.close()
 
-# --- Simple in-memory cache ---
-cache_movies = {}
-cache_single_movie = {}
-CACHE_TTL = 3600  # 1 hour
 
-def is_cache_valid(cache_item):
-    return cache_item and (time.time() - cache_item["timestamp"] < CACHE_TTL)
+def simulate_image_processing(num_images: int = 20, image_size=(5000, 5000)):
+    for _ in range(num_images):
+        # Create a fake image (random noise)
+        array = np.random.randint(0, 256, image_size + (3,), dtype=np.uint8)
+        img = Image.fromarray(array)
+
+        # Simulate CPU work: apply filters, resize, convert
+        img = img.filter(ImageFilter.GaussianBlur(2))
+        img = img.resize((256, 256))
+        buf = io.BytesIO()
+        img.save(buf, format='JPEG')  # Simulate encoding
 
 @app.get("/")
 def index():
     return {"message": "Welcome to the FastAPI backend"}
 
+
+
 @app.get("/movies")
 def get_movies(db: Session = Depends(get_db)):
-    if is_cache_valid(cache_movies.get("all_movies")):
-        return {"source": "memory", "movies": cache_movies["all_movies"]["data"]}
+    start_time = time.perf_counter()
+
+    if "all_movies" in movie_cache:
+        duration = time.perf_counter() - start_time
+        return {
+            "source": "memory_cache",
+            "duration_seconds": round(duration, 3),
+            "movies": movie_cache["all_movies"]
+        }
 
     movies = db.query(Movie).all()
     movies_data = jsonable_encoder(movies)
 
-    # Cache the result
-    cache_movies["all_movies"] = {
-        "timestamp": time.time(),
-        "data": movies_data
+    # Simulate image processing
+    simulate_image_processing(num_images=5)
+
+    movie_cache["all_movies"] = movies_data
+    duration = time.perf_counter() - start_time
+    return {
+        "source": "database",
+        "duration_seconds": round(duration, 3),
+        "movies": movies_data
     }
 
-    return {"source": "database", "movies": movies_data}
+
+@app.get("/movies/top10")
+def get_top_10_movies(db: Session = Depends(get_db)):
+    if "top_10" in derived_cache:
+        return {"source": "derived_cache", "movies": derived_cache["top_10"]}
+
+    # Use existing full movie cache if available
+    if "all_movies" in movie_cache:
+        all_movies = movie_cache["all_movies"]
+    else:
+        all_movies = db.query(Movie).all()
+        all_movies = jsonable_encoder(all_movies)
+        movie_cache["all_movies"] = all_movies
+
+    # Derive data
+    top_10 = sorted(
+    [m for m in all_movies if m["rating"] is not None],
+    key=itemgetter("rating"),
+    reverse=True
+)[:10]
+    derived_cache["top_10"] = top_10
+
+    return {"source": "computed", "movies": top_10}
 
 @app.get("/movies/{title}")
 def get_movie(title: str, db: Session = Depends(get_db)):
-    if is_cache_valid(cache_single_movie.get(title)):
-        return {"source": "memory", "movie": cache_single_movie[title]["data"]}
+    cache_key = f"movie:{title}"
+
+    if cache_key in movie_cache:
+        return {"source": "memory_cache", "movie": movie_cache[cache_key]}
 
     movie = db.query(Movie).filter(Movie.title == title).first()
     if not movie:
@@ -91,11 +143,7 @@ def get_movie(title: str, db: Session = Depends(get_db)):
         "genre": movie.genre
     }
 
-    cache_single_movie[title] = {
-        "timestamp": time.time(),
-        "data": movie_data
-    }
-
+    movie_cache[cache_key] = movie_data
     return {"source": "database", "movie": movie_data}
 
 @app.post("/movies", status_code=201)
@@ -105,9 +153,8 @@ def add_movie(movie: MovieSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_movie)
 
-    # Invalidate caches
-    cache_movies.pop("all_movies", None)
-    cache_single_movie.pop(new_movie.title, None)
+    # Invalidate cache
+    movie_cache.pop("all_movies", None)
 
     return {"message": "Movie added!", "movie": new_movie}
 
@@ -122,9 +169,9 @@ def update_movie(title: str, updated_movie: MovieSchema, db: Session = Depends(g
 
     db.commit()
 
-    # Invalidate caches
-    cache_movies.pop("all_movies", None)
-    cache_single_movie.pop(title, None)
+    # Invalidate relevant caches
+    movie_cache.pop("all_movies", None)
+    movie_cache.pop(f"movie:{title}", None)
 
     return {"message": "Movie updated!", "movie": movie}
 
@@ -137,9 +184,9 @@ def delete_movie(title: str, db: Session = Depends(get_db)):
     db.delete(movie)
     db.commit()
 
-    # Invalidate caches
-    cache_movies.pop("all_movies", None)
-    cache_single_movie.pop(title, None)
+    # Invalidate relevant caches
+    movie_cache.pop("all_movies", None)
+    movie_cache.pop(f"movie:{title}", None)
 
     return {"message": "Movie deleted!"}
 
