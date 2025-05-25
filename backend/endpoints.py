@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from fastapi.encoders import jsonable_encoder
 from typing import List, Optional
@@ -80,13 +81,10 @@ def get_movie(title: str, db: Session = Depends(get_db)):
 
 @router.get("/cache/stats")
 def cache_stats():
-    return {
+    return JSONResponse(content={
         "movie_cache": movie_cache.stats(),
-        "derived_cache": derived_cache.stats()
-    }
+        "derived_cache": derived_cache.stats(),
+    })
 
-@router.post("/cache/train")
-def train_cache_model():
-    movie_cache.train_model()
-    derived_cache.train_model()
-    return {"message": "Cache models trained from metadata"}
+
+
