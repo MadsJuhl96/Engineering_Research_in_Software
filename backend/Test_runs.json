@@ -1,0 +1,197 @@
+
+
+🚀 Running benchmark WITH cache...
+=== Cache Enabled Benchmark ===
+Total Requests    : 168
+Eviction Count    : 0
+Hit Rate          : 94.05%
+Avg Hit Latency   : 0.002 ms
+Avg Miss Latency  : 0.002 ms
+Avg Request Time  : 6.578 ms
+Duration (sec)    : 60
+
+🚀 Running benchmark WITHOUT cache...
+=== No Cache Benchmark ===
+Total Requests         : 130
+Avg Recomputation Time : 107.889 ms
+Total Recomputation    : 14.026 s
+Avg Request Time       : 107.889 ms
+Duration (sec)         : 60
+
+📊 COMPARISON RESULTS
+========================================
+With Cache:
+- Total requests     : 168
+- Eviction count     : 0
+- Hit rate           : 94.05%
+- Avg hit latency    : 0.0015 ms
+- Avg miss latency   : 0.0019 ms
+- Avg request time   : 6.5784 ms
+
+Without Cache:
+- Total requests     : 130
+- Avg recompute time : 107.8886 ms
+- Total recompute time: 14.0255 s
+- Avg request time   : 107.8886 ms
+========================================
+
+
+
+
+
+🚀 Running benchmark WITH cache...
+=== Cache Enabled Benchmark ===
+Total Requests    : 345
+Eviction Count    : 0
+Hit Rate          : 97.10%
+Avg Hit Latency   : 0.002 ms
+Avg Miss Latency  : 0.001 ms
+Avg Request Time  : 3.204 ms
+Duration (sec)    : 120
+
+🚀 Running benchmark WITHOUT cache...
+=== No Cache Benchmark ===
+Total Requests         : 259
+Avg Recomputation Time : 109.092 ms
+Total Recomputation    : 28.255 s
+Avg Request Time       : 109.092 ms
+Duration (sec)         : 120
+
+📊 COMPARISON RESULTS
+========================================
+With Cache:
+- Total requests     : 345
+- Eviction count     : 0
+- Hit rate           : 97.1%
+- Avg hit latency    : 0.0017 ms
+- Avg miss latency   : 0.0014 ms
+- Avg request time   : 3.2043 ms
+
+Without Cache:
+- Total requests     : 259
+- Avg recompute time : 109.0925 ms
+- Total recompute time: 28.2549 s
+- Avg request time   : 109.0925 ms
+========================================
+
+
+
+
+
+🚀 Running benchmark WITH cache...
+=== Cache Enabled Benchmark ===
+Total Requests    : 845
+Eviction Count    : 0
+Hit Rate          : 98.82%
+Avg Hit Latency   : 0.002 ms
+Avg Miss Latency  : 0.002 ms
+Avg Request Time  : 1.312 ms
+Duration (sec)    : 300
+
+🚀 Running benchmark WITHOUT cache...
+=== No Cache Benchmark ===
+Total Requests         : 646
+Avg Recomputation Time : 108.694 ms
+Total Recomputation    : 70.216 s
+Avg Request Time       : 108.694 ms
+Duration (sec)         : 300
+
+📊 COMPARISON RESULTS
+========================================
+With Cache:
+- Total requests     : 845
+- Eviction count     : 0
+- Hit rate           : 98.82%
+- Avg hit latency    : 0.0016 ms
+- Avg miss latency   : 0.0016 ms
+- Avg request time   : 1.3123 ms
+
+Without Cache:
+- Total requests     : 646
+- Avg recompute time : 108.6943 ms
+- Total recompute time: 70.2165 s
+- Avg request time   : 108.6943 ms
+========================================
+
+
+
+
+new modfied test data:
+
+=== Cache Enabled Benchmark ===
+Total Requests           : 3403
+Eviction Count           : 2253
+Hit Rate                 : 76.95%
+Avg Hit Latency          : 0.001 ms
+Avg Miss Latency         : 0.001 ms
+Avg Request Time         : 2.736 ms
+Avg Compute Cost (DB)    : 12.710 ms
+Avg Derived Compute Time : 0.023 ms
+Miss Count               : 718
+Cache Size               : 100
+Duration (sec)           : 1200
+
+🚀 Running benchmark WITHOUT cache...
+=== No Cache Benchmark ===
+Total Requests         : 3186
+Avg Recomputation Time : 27.233 ms
+Total Recomputation    : 86.764 s
+Avg Request Time       : 27.233 ms
+Duration (sec)         : 1200
+Avg Recomputation Time pr. sortering:
+ - rating: 23.772 ms
+ - year  : 23.735 ms
+ - title : 33.999 ms
+
+📊 COMPARISON RESULTS
+========================================
+With Cache:
+- Total requests           : 3403
+- Eviction count           : 2253
+- Hit rate                 : 76.95%
+- Avg hit latency          : 0.0008 ms
+- Avg miss latency         : 0.0007 ms
+- Avg request time         : 2.736 ms
+- Avg derived compute time : 12.71 ms
+- Total cost estimate      : 9225.8016 ms-equivalent
+
+Without Cache:
+- Total requests           : 3186
+- Avg recompute time       : 27.2329 ms
+- Total recompute time     : 86.764 s
+- Avg request time         : 27.2329 ms
+- Total cost estimate      : 87401.2061 ms-equivalent
+
+
+
+
+
+[Eviction] ❌ 'derived:130:original' smides ud | Score: 0.0469 | Access: 0 | Last: 1748343443 | Cost: 0.011 ms
+[Eviction] ❌ 'derived:70:original' smides ud | Score: 0.0448 | Access: 0 | Last: 1748343444 | Cost: 0.011 ms
+[Eviction] ❌ 'derived:410:year' smides ud | Score: 0.0462 | Access: 0 | Last: 1748343452 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:410:title' smides ud | Score: 0.0443 | Access: 0 | Last: 1748343452 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:275:year' smides ud | Score: 0.0462 | Access: 0 | Last: 1748343452 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:275:title' smides ud | Score: 0.0464 | Access: 0 | Last: 1748343452 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:115:original' smides ud | Score: 0.0471 | Access: 0 | Last: 1748343445 | Cost: 0.011 ms
+[Eviction] ❌ 'derived:220:year' smides ud | Score: 0.0509 | Access: 0 | Last: 1748343455 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:220:title' smides ud | Score: 0.0506 | Access: 0 | Last: 1748343455 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:465:original' smides ud | Score: 0.0573 | Access: 0 | Last: 1748343447 | Cost: 0.013 ms
+[Eviction] ❌ 'derived:390:original' smides ud | Score: 0.0534 | Access: 0 | Last: 1748343448 | Cost: 0.013 ms
+[Eviction] ❌ 'derived:230:original' smides ud | Score: 0.0506 | Access: 0 | Last: 1748343449 | Cost: 0.012 ms
+[Eviction] ❌ 'derived:30:original' smides ud | Score: 0.0487 | Access: 0 | Last: 1748343450 | Cost: 0.011 ms
+[Eviction] ❌ 'derived:370:original' smides ud | Score: 0.0539 | Access: 0 | Last: 1748343449 | Cost: 0.013 ms
+[Eviction] ❌ 'derived:320:year' smides ud | Score: 0.0527 | Access: 0 | Last: 1748343458 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:320:title' smides ud | Score: 0.0527 | Access: 0 | Last: 1748343458 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:460:original' smides ud | Score: 0.0558 | Access: 0 | Last: 1748343450 | Cost: 0.013 ms
+[Eviction] ❌ 'derived:410:original' smides ud | Score: 0.0529 | Access: 0 | Last: 1748343452 | Cost: 0.012 ms
+[Eviction] ❌ 'derived:275:original' smides ud | Score: 0.0510 | Access: 0 | Last: 1748343452 | Cost: 0.012 ms
+[Eviction] ❌ 'derived:220:original' smides ud | Score: 0.0524 | Access: 0 | Last: 1748343455 | Cost: 0.012 ms
+[Eviction] ❌ 'derived:330:year' smides ud | Score: 0.0363 | Access: 0 | Last: 1748343463 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:330:title' smides ud | Score: 0.0363 | Access: 0 | Last: 1748343463 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:205:year' smides ud | Score: 0.0471 | Access: 0 | Last: 1748343464 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:205:title' smides ud | Score: 0.0455 | Access: 0 | Last: 1748343464 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:320:original' smides ud | Score: 0.0519 | Access: 0 | Last: 1748343458 | Cost: 0.012 ms
+[Eviction] ❌ 'derived:90:title' smides ud | Score: 0.0265 | Access: 1 | Last: 1748343465 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:90:year' smides ud | Score: 0.0261 | Access: 1 | Last: 1748343465 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:360:year' smides ud | Score: 0.0292 | Access: 0 | Last: 1748343466 | Cost: 0.000 ms
+[Eviction] ❌ 'derived:360:title' smides ud | Score: 0.0294 | Access: 0 | Last: 1748343466 | Cost: 0.000 ms

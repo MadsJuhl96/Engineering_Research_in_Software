@@ -1,38 +1,31 @@
+# main.py
 from fastapi import FastAPI
-from database import Base, engine
-import logging
+from fastapi.middleware.cors import CORSMiddleware
+from endpoints import router
+from database import engine, Base
 from cache import movie_cache
-from endpoints import router as api_router
 from dashboard import router as dashboard_router
-from models import Movie
-from sqlalchemy.orm import Session
-from simulate_stress import run_simulation
-import threading
+from models import preload_cache, start_stress_simulation
 
 app = FastAPI()
-logging.basicConfig(level=logging.DEBUG)
 
-# Create DB tables
-Base.metadata.create_all(bind=engine)
-
-@app.on_event("startup")
-def fill_cache():
-    db = Session(bind=engine)
-    try:
-        movies = db.query(Movie).all()
-        for movie in movies:
-            key = f"movie:{movie.title}"
-            movie_cache.set(key, movie)
-        print(f"✅ Preloaded {len(movies)} movies into cache")
-    finally:
-        db.close()
-
-@app.on_event("startup")
-def launch_simulation():
-    thread = threading.Thread(target=run_simulation, args=(movie_cache,), daemon=True)
-    thread.start()
-    print("🚀 Cache stress simulation started in background")
-
-# Include endpoints
-app.include_router(api_router)
+app.include_router(router)
 app.include_router(dashboard_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
+    preload_cache()
+    start_stress_simulation()
+
+@app.get("/")
+def root():
+    return {"message": "Movie API with optional caching is running."}

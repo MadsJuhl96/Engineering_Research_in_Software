@@ -1,0 +1,13 @@
+{
+  "total_requests": 3403,
+  "eviction_count": 2253,
+  "hit_rate": 0.7695170927612891,
+  "avg_hit_latency": 7.660512572017834e-07,
+  "avg_miss_latency": 7.420312118496076e-07,
+  "avg_compute_cost": 0.01271003008363535,
+  "total_duration_seconds": 1200,
+  "avg_request_time": 0.002735972026874244,
+  "avg_derived_compute_time": 2.319118356408265e-05,
+  "miss_count": 718,
+  "cache_size": 100
+}
