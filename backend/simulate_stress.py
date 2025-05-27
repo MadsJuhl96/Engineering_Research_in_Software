@@ -7,6 +7,8 @@ from models import Movie
 from database import SessionLocal
 from cache import movie_cache  # Din cache-klasse, som skal have get/set/stats
 
+# --- Konfiguration ---
+POPULAR_N = [50, 100, 150, 200, 250, 300, 350, 400, 222, 1000, 900, 800, 700, 600, 576, 459]
 
 # --- Hjælpefunktioner til deriverede data (sorteringer) ---
 def sort_by_year(movies, descending=True):
@@ -44,9 +46,8 @@ def generate_derived_movies(n, order_by_rating=True, order_by_year=False, order_
 # --- Benchmark med cache ---
 def run_with_cache(duration_minutes=1, output_file="results_with_cache.json"):
     cache = movie_cache
-    popular_n = [50, 100, 150, 200, 250, 300, 350, 400, 222, 1000, 900, 800, 700, 600, 576, 459]
     if random.random() < 0.7:
-        n = random.choice(popular_n)
+        n = random.choice(POPULAR_N)
     else:
         n = random.choice(range(10, 1000, 5))
 
@@ -59,7 +60,7 @@ def run_with_cache(duration_minutes=1, output_file="results_with_cache.json"):
 
     while datetime.now() < end_time:
         if random.random() < 0.7:
-            n = random.choice(popular_n)
+            n = random.choice(POPULAR_N)
         else:
             n = random.choice(range(10, 500, 5))
 
@@ -140,13 +141,10 @@ def run_with_cache(duration_minutes=1, output_file="results_with_cache.json"):
 
 # --- Benchmark uden cache ---
 def run_without_cache(duration_minutes=1, output_file="results_no_cache.json"):
-    popular_n = [50, 100, 150, 200, 250, 300, 350, 400, 222, 1000, 900, 800, 700, 600, 576, 459]
     if random.random() < 0.7:
-        n = random.choice(popular_n)
+        n = random.choice(POPULAR_N)
     else:
         n = random.choice(range(10, 1000, 5))
-
-
 
     sort_methods = [
         ("rating", {"order_by_rating": True, "order_by_year": False, "order_by_title": False}),
@@ -161,7 +159,7 @@ def run_without_cache(duration_minutes=1, output_file="results_no_cache.json"):
 
     while datetime.now() < end_time:
         if random.random() < 0.7:
-            n = random.choice(popular_n)
+            n = random.choice(POPULAR_N)
         else:
             n = random.choice(range(10, 500, 5))
 

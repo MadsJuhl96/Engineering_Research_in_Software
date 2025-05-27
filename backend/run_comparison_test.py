@@ -1,5 +1,4 @@
 import json
-import matplotlib.pyplot as plt
 from simulate_stress import run_with_cache, run_without_cache
 
 def compare_results(with_file, without_file):
@@ -45,52 +44,6 @@ def compare_results(with_file, without_file):
 
     print("=" * 40)
 
-    plot_metrics(with_cache, no_cache, total_cost_with_cache, total_cost_no_cache)
-
-
-def plot_metrics(with_cache, no_cache, total_cost_with_cache, total_cost_no_cache):
-    labels = [
-        'Hit Latency (ms)',
-        'Miss Latency (ms)',
-        'Recompute Time (ms)',
-        'Avg Request Time (ms)',
-        'Compute Cost (ms)',
-        'Total Cost (ms)'
-    ]
-
-    cache_values = [
-        with_cache.get('avg_hit_latency', 0) * 1000,
-        with_cache.get('avg_miss_latency', 0) * 1000,
-        0,  # ingen recompute tid i cache-scenariet
-        with_cache.get('avg_request_time', 0) * 1000,
-        with_cache.get('avg_compute_cost', 0) * 1000,
-        total_cost_with_cache * 1000
-    ]
-
-    no_cache_values = [
-        0,  # ingen cache hits
-        0,
-        no_cache.get('avg_recompute_latency', 0) * 1000,
-        no_cache.get('avg_request_time', 0) * 1000,
-        0,  # ingen cache compute-cost
-        total_cost_no_cache * 1000
-    ]
-
-    x = range(len(labels))
-    width = 0.35
-
-    fig, ax = plt.subplots()
-    ax.bar([i - width / 2 for i in x], cache_values, width, label='With Cache', color='green')
-    ax.bar([i + width / 2 for i in x], no_cache_values, width, label='Without Cache', color='red')
-
-    ax.set_ylabel('Time (ms)')
-    ax.set_title('Latency, Cost and Time Comparison')
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(labels, rotation=25)
-    ax.legend()
-
-    plt.tight_layout()
-    plt.show()
 
 
 if __name__ == "__main__":
@@ -98,9 +51,9 @@ if __name__ == "__main__":
     without_file = "results_no_cache.json"
 
     print("🚀 Running benchmark WITH cache...")
-    run_with_cache(duration_minutes=20, output_file=with_file)
+    run_with_cache(duration_minutes=0.5, output_file=with_file)
 
     print("\n🚀 Running benchmark WITHOUT cache...")
-    run_without_cache(duration_minutes=20, output_file=without_file)
+    run_without_cache(duration_minutes=0.5, output_file=without_file)
 
     compare_results(with_file, without_file)
