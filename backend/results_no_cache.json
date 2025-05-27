@@ -1,12 +1,12 @@
 {
-  "total_requests": 79,
-  "avg_recompute_latency": 0.02946994177071684,
-  "total_recompute_time": 2.3281253998866305,
-  "avg_request_time": 0.02946994177071684,
+  "total_requests": 80,
+  "avg_recompute_latency": 0.023186615007580257,
+  "total_recompute_time": 1.8549292006064206,
+  "avg_request_time": 0.023186615007580257,
   "total_duration_seconds": 30.0,
   "avg_recompute_latency_per_sort": {
-    "rating": 0.024638645453237448,
-    "year": 0.03372231501271017,
-    "title": 0.03233091537213813
+    "rating": 0.016909913342290868,
+    "year": 0.02034770667863389,
+    "title": 0.036860029998933896
   }
 }
