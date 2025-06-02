@@ -69,7 +69,6 @@ class RuleBasedCache:
         cost_values = [self.costs.get(k, 0) for k in self.data.keys()]
         cost_max = max(cost_values) or 1
 
-        # Vægte
         access_weight = 0.5
         time_weight = 0.2
         cost_weight = 0.5
@@ -86,16 +85,12 @@ class RuleBasedCache:
             return score
 
         while len(self.data) > self.maxsize:
-            # Find victim og beregn scores
-            scored_items = []
-            for key, entry in self.data.items():
-                score = compute_score(key, entry)
-                scored_items.append((key, score, entry.access_count, entry.last_access, self.costs.get(key, 0)))
-
+            scored_items = [
+                (key, compute_score(key, entry), entry.access_count, entry.last_access, self.costs.get(key, 0))
+                for key, entry in self.data.items()
+            ]
             victim_key, victim_score, acc, last, cost = min(scored_items, key=lambda x: x[1])
-            
             print(f"[Eviction] ❌ '{victim_key}' smides ud | Score: {victim_score:.4f} | Access: {acc} | Last: {last:.0f} | Cost: {cost:.3f} ms")
-
             del self.data[victim_key]
             self.eviction_count += 1
             if victim_key in self.costs:
@@ -113,6 +108,5 @@ class RuleBasedCache:
             "avg_compute_cost": avg_cost
         }
 
-
 # Global instans
-movie_cache = RuleBasedCache(maxsize=100)
+movie_cache = RuleBasedCache(maxsize=200)

@@ -1,13 +1,13 @@
 {
-  "total_requests": 85,
-  "eviction_count": 8,
-  "hit_rate": 0.5764705882352941,
-  "avg_hit_latency": 7.020398264839536e-07,
-  "avg_miss_latency": 6.370408098316855e-07,
-  "avg_compute_cost": 0.023117358327403456,
-  "total_duration_seconds": 30.0,
-  "avg_request_time": 0.009815334120546193,
-  "avg_derived_compute_time": 3.309999729561455e-05,
-  "miss_count": 36,
-  "cache_size": 100
+  "total_requests": 423,
+  "eviction_count": 43,
+  "hit_rate": 0.8085106382978723,
+  "avg_hit_latency": 8.115022748229448e-07,
+  "avg_miss_latency": 7.172846216171857e-07,
+  "avg_compute_cost": 0.01912433670574351,
+  "total_duration_seconds": 150.0,
+  "avg_request_time": 0.0035990593411649265,
+  "avg_derived_compute_time": 1.4802126431877308e-05,
+  "miss_count": 79,
+  "cache_size": 200
 }

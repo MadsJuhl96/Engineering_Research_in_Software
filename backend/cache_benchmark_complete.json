@@ -1,0 +1,267 @@
+[
+    {
+      "id": 1,
+      "duration_seconds": 1200,
+      "cache_enabled": {
+        "total_requests": 3403,
+        "eviction_count": 2253,
+        "hit_rate": 0.7695,
+        "avg_hit_latency": 0.0,
+        "avg_miss_latency": 0.0,
+        "avg_compute_cost": 12.710,
+        "avg_request_time": 0.002736,
+        "avg_derived_compute_time": 0.023,
+        "miss_count": 718,
+        "cache_size": 100,
+        "comparison": {
+          "total_requests": 3403,
+          "eviction_count": 2253,
+          "hit_rate": 0.7695,
+          "avg_hit_latency": 0.0008,
+          "avg_miss_latency": 0.0007,
+          "avg_request_time": 2.736,
+          "avg_derived_compute_time": 12.71,
+          "total_cost_estimate_ms": 9225.8016
+        }
+      },
+      "cache_disabled": {
+        "total_requests": 3186,
+        "avg_recompute_latency": 0.027233,
+        "total_recompute_time": 86.764,
+        "avg_request_time": 0.027233,
+        "avg_recompute_latency_per_sort": {
+          "rating": 0.023772,
+          "year": 0.023735,
+          "title": 0.033999
+        },
+        "comparison": {
+          "total_requests": 3186,
+          "avg_recompute_latency": 27.2329,
+          "total_recompute_time": 86.764,
+          "avg_request_time": 27.2329,
+          "total_cost_estimate_ms": 87401.2061
+        }
+      }
+    },
+    {
+      "id": 2,
+      "duration_seconds": 1800,
+      "cache_enabled": {
+        "total_requests": 5139,
+        "eviction_count": 0,
+        "hit_rate": 0.979,
+        "avg_hit_latency": 0.0,
+        "avg_miss_latency": 0.0,
+        "avg_compute_cost": 0.016,
+        "avg_request_time": 0.0,
+        "avg_derived_compute_time": 0.0,
+        "miss_count": 106,
+        "cache_size": 318,
+        "comparison": {
+          "total_requests": 5139,
+          "eviction_count": 0,
+          "hit_rate": 0.9794,
+          "avg_hit_latency": 0.0007,
+          "avg_miss_latency": 0.0006,
+          "avg_request_time": 0.3376,
+          "avg_derived_compute_time": 0.0014,
+          "total_cost_estimate_ms": 2012.8547
+        }
+      },
+      "cache_disabled": {
+        "total_requests": 4785,
+        "avg_recompute_latency": 0.025,
+        "total_recompute_time": 118.455,
+        "avg_request_time": 0.025,
+        "avg_recompute_latency_per_sort": {
+          "rating": 0.024015482375628804,
+          "year": 0.02436401669729426,
+          "title": 0.025838057521131504
+        },
+        "comparison": {
+          "total_requests": 4785,
+          "avg_recompute_latency": 24.7555,
+          "total_recompute_time": 118.455,
+          "avg_request_time": 24.7555,
+          "total_cost_estimate_ms": 119412.0029
+        }
+      }
+    },
+    {
+      "id": 3,
+      "duration_seconds": 300,
+      "cache_enabled": {
+        "total_requests": 860,
+        "eviction_count": 560,
+        "hit_rate": 0.744,
+        "avg_hit_latency": 0.0,
+        "avg_miss_latency": 0.0,
+        "avg_compute_cost": 0.015,
+        "avg_request_time": 0.003,
+        "avg_derived_compute_time": 0.0,
+        "miss_count": 202,
+        "cache_size": 100,
+        "comparison": {
+          "total_requests": 860,
+          "eviction_count": 560,
+          "hit_rate": 0.7442,
+          "avg_hit_latency": 0.0007,
+          "avg_miss_latency": 0.0007,
+          "avg_request_time": 3.4716,
+          "avg_derived_compute_time": 0.0219,
+          "total_cost_estimate_ms": 3040.5312
+        }
+      },
+      "cache_disabled": {
+        "total_requests": 812,
+        "avg_recompute_latency": 0.024,
+        "total_recompute_time": 19.339,
+        "avg_request_time": 0.024,
+        "avg_recompute_latency_per_sort": {
+          "rating": 0.02321321235870252,
+          "year": 0.024415340908242135,
+          "title": 0.023825363695184
+        },
+        "comparison": {
+          "total_requests": 812,
+          "avg_recompute_latency": 23.8159,
+          "total_recompute_time": 19.3385,
+          "avg_request_time": 23.8159,
+          "total_cost_estimate_ms": 19500.9049
+        }
+      }
+    },
+    {
+      "id": 4,
+      "duration_seconds": 180,
+      "cache_enabled": {
+        "total_requests": 513,
+        "eviction_count": 0,
+        "hit_rate": 0.827,
+        "avg_hit_latency": 0.0,
+        "avg_miss_latency": 0.0,
+        "avg_compute_cost": 0.017,
+        "avg_request_time": 0.003,
+        "avg_derived_compute_time": 0.0,
+        "miss_count": 89,
+        "cache_size": 267,
+        "comparison": {
+          "total_requests": 513,
+          "eviction_count": 0,
+          "hit_rate": 0.8265,
+          "avg_hit_latency": 0.0008,
+          "avg_miss_latency": 0.0006,
+          "avg_request_time": 2.9761,
+          "avg_derived_compute_time": 0.0125,
+          "total_cost_estimate_ms": 1783.6283
+        }
+      },
+      "cache_disabled": {
+        "total_requests": 490,
+        "avg_recompute_latency": 0.024,
+        "total_recompute_time": 11.939,
+        "avg_request_time": 0.024,
+        "avg_recompute_latency_per_sort": {
+          "rating": 0.025597411613430706,
+          "year": 0.02352193798206476,
+          "title": 0.024108297438569702
+        },
+        "comparison": {
+          "total_requests": 490,
+          "avg_recompute_latency": 24.3651,
+          "total_recompute_time": 11.9389,
+          "avg_request_time": 24.3651,
+          "total_cost_estimate_ms": 12036.9201
+        }
+      }
+    },
+    {
+      "id": 5,
+      "duration_seconds": 180,
+      "cache_enabled": {
+        "total_requests": 509,
+        "eviction_count": 108,
+        "hit_rate": 0.798,
+        "avg_hit_latency": 0.0,
+        "avg_miss_latency": 0.0,
+        "avg_compute_cost": 0.018,
+        "avg_request_time": 0.003,
+        "avg_derived_compute_time": 0.0,
+        "miss_count": 96,
+        "cache_size": 200,
+        "comparison": {
+          "total_requests": 509,
+          "eviction_count": 108,
+          "hit_rate": 0.7983,
+          "avg_hit_latency": 0.0007,
+          "avg_miss_latency": 0.0006,
+          "avg_request_time": 3.4894,
+          "avg_derived_compute_time": 0.0156,
+          "total_cost_estimate_ms": 1959.9617
+        }
+      },
+      "cache_disabled": {
+        "total_requests": 482,
+        "avg_recompute_latency": 0.023,
+        "total_recompute_time": 11.225,
+        "avg_request_time": 0.023,
+        "avg_recompute_latency_per_sort": {
+          "rating": 0.02242529151791876,
+          "year": 0.0245311695875393,
+          "title": 0.022811295884049
+        },
+        "comparison": {
+          "total_requests": 482,
+          "avg_recompute_latency": 23.2893,
+          "total_recompute_time": 11.2255,
+          "avg_request_time": 23.2893,
+          "total_cost_estimate_ms": 11321.8523
+        }
+      }
+    },
+    {
+      "id": 6,
+      "duration_seconds": 150,
+      "cache_enabled": {
+        "total_requests": 423,
+        "eviction_count": 43,
+        "hit_rate": 0.809,
+        "avg_hit_latency": 0.0,
+        "avg_miss_latency": 0.0,
+        "avg_compute_cost": 0.019,
+        "avg_request_time": 0.004,
+        "avg_derived_compute_time": 0.0,
+        "miss_count": 79,
+        "cache_size": 200,
+        "comparison": {
+          "total_requests": 423,
+          "eviction_count": 43,
+          "hit_rate": 0.8085,
+          "avg_hit_latency": 0.0008,
+          "avg_miss_latency": 0.0007,
+          "avg_request_time": 3.5991,
+          "avg_derived_compute_time": 0.0148,
+          "total_cost_estimate_ms": 1710.8226
+        }
+      },
+      "cache_disabled": {
+        "total_requests": 396,
+        "avg_recompute_latency": 0.026,
+        "total_recompute_time": 10.488,
+        "avg_request_time": 0.026,
+        "avg_recompute_latency_per_sort": {
+          "rating": 0.02420464453371096,
+          "year": 0.02740153184643498,
+          "title": 0.027748939844681637
+        },
+        "comparison": {
+          "total_requests": 396,
+          "avg_recompute_latency": 26.4849,
+          "total_recompute_time": 10.488,
+          "avg_request_time": 26.4849,
+          "total_cost_estimate_ms": 10567.2103
+        }
+      }
+    }
+  ]
+  
